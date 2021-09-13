@@ -66,8 +66,12 @@ class PSQL:
     @classmethod
     def dump_table(cls, table_name: str):
         cur = cls._connection().cursor()
+        dump_path = Path(__file__).parent / "dump"
 
-        file = Path(__file__).parent / "dump" / f"{table_name}.csv"
+        if not os.path.exists(dump_path):
+            os.makedirs(dump_path)
+
+        file = dump_path / f"{table_name}.csv"
         with file.open("w") as f:
             sql = (
                 f"COPY {table_name} TO STDOUT "
