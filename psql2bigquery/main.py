@@ -68,6 +68,8 @@ class PSQL:
         cur = cls._connection().cursor()
 
         file = Path(__file__).parent / "dump" / f"{table_name}.csv"
+        file.parent.mkdir(exist_ok=True, parents=True)
+
         with file.open("w") as f:
             sql = (
                 f"COPY {table_name} TO STDOUT "
