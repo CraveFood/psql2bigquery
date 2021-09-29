@@ -44,6 +44,7 @@ IGNORE_TABLES = (
 IGNORE_PREFIXES = (
     "django_",
     "square_",
+    "pg_",
 )
 
 SCHEMA: str = "public"
@@ -87,7 +88,7 @@ class PSQL:
 
         with file.open("w") as f:
             sql = (
-                f"COPY {table_name} TO STDOUT "
+                f"COPY (SELECT * FROM {table_name}) TO STDOUT "
                 f"WITH (FORMAT CSV, HEADER TRUE, DELIMITER '{DELIMITER}', QUOTE '{QUOTE}', FORCE_QUOTE *);"
             )
             cur.copy_expert(sql=sql, file=f)
@@ -97,13 +98,22 @@ class PSQL:
 
     @classmethod
     def list_tables(cls):
+        def _is_accepted(name):
+            return name.lower() in IGNORE_TABLES or any(name.startswith(prefix) for prefix in IGNORE_PREFIXES)
+
+        def _fetch_names(query):
+            for row in cls._execute_query(sql=query):
+                name = row[0]
+                if not _is_accepted(name=name):
+                    logging.debug(f"Ignoring: {name}")
+                    continue
+                yield name
+
         sql = f"SELECT tablename FROM pg_tables WHERE schemaname='{SCHEMA}'"
-        for row in cls._execute_query(sql=sql):
-            table_name = row[0]
-            if table_name.lower() in IGNORE_TABLES or any(table_name.startswith(prefix) for prefix in IGNORE_PREFIXES):
-                logging.debug(f"Ignoring table: {table_name}")
-                continue
-            yield table_name
+        yield from _fetch_names(query=sql)
+
+        sql = f"select table_name from INFORMATION_SCHEMA.views WHERE table_schema='{SCHEMA}'"
+        yield from _fetch_names(query=sql)
 
     @classmethod
     def close(cls):
