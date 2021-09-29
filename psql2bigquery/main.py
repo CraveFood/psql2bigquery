@@ -12,11 +12,27 @@
 import os
 from pathlib import Path
 
+import logging
+import sentry_sdk
+from sentry_sdk.integrations.logging import LoggingIntegration
 from google.api_core.exceptions import BadRequest
 from google.cloud import bigquery
 import psycopg2
 from google.oauth2 import service_account
 
+# Setup Sentry Logging
+SENTRY_DSN = os.environ.get("SENTRY_DSN")
+if SENTRY_DSN:
+    sentry_logging = LoggingIntegration(
+        level=logging.INFO,
+        event_level=logging.ERROR,
+    )
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[sentry_logging]
+    )
+
+# Setup Variables
 IGNORE_TABLES = (
     "order_historicalmasterorder",
     "order_historicalorder",
@@ -29,7 +45,6 @@ IGNORE_PREFIXES = (
     "django_",
     "square_",
 )
-
 
 SCHEMA: str = "public"
 GCP_PROJECT = os.environ["GCP_PROJECT"]
@@ -86,6 +101,7 @@ class PSQL:
         for row in cls._execute_query(sql=sql):
             table_name = row[0]
             if table_name.lower() in IGNORE_TABLES or any(table_name.startswith(prefix) for prefix in IGNORE_PREFIXES):
+                logging.debug(f"Ignoring table: {table_name}")
                 continue
             yield table_name
 
@@ -146,14 +162,14 @@ class BigQuery:
 
 def main():
     for table_name in PSQL.list_tables():
-        print(f"[{table_name}]")
+        logging.info(f"[{table_name}]")
         file_path = PSQL.dump_table(table_name=table_name)
         try:
             table_id = BigQuery.load_to_bigquery(table_name=table_name, file_path=file_path)
-            print(f"\tPSQL ---> BIGQUERY [{BigQuery.check_table(table_id=table_id)} rows]")
+            logging.info(f"\tPSQL ---> BIGQUERY [{table_name}]: {BigQuery.check_table(table_id=table_id)} rows")
             os.remove(file_path)
         except BadRequest as exc:
-            print(f"\tPSQL ---> BIGQUERY [{exc.errors}]")
+            logging.error(f"\tPSQL ---> BIGQUERY [{table_name}]: {exc.errors}")
 
     PSQL.close()
 
