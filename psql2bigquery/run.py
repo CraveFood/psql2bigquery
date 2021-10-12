@@ -115,10 +115,13 @@ def _env(name, fallback=None):
     multiple=True,
     help="Tables to include",
 )
-@click.option("--exclude", type=str, multiple=True, help="Tables to exclude",)
 @click.option(
-    "--exclude-prefix", type=str, multiple=True, help="Tables prefix to exclude"
+    "--exclude",
+    type=str,
+    multiple=True,
+    help="Tables to exclude",
 )
+@click.option("--exclude-prefix", type=str, multiple=True, help="Tables prefix to exclude")
 def run(
     db_host: str,
     db_port: int,
@@ -173,12 +176,8 @@ def run(
         logging.info(f"[{table_name}]")
         file_path = psql.dump_table(table_name=table_name)
         try:
-            table_id = bigquery.load_to_bigquery(
-                table_name=table_name, file_path=file_path
-            )
-            logging.info(
-                f"\tPSQL ---> BIGQUERY [{table_name}]: {bigquery.check_table(table_id=table_id)} rows"
-            )
+            table_id = bigquery.load_to_bigquery(table_name=table_name, file_path=file_path)
+            logging.info(f"\tPSQL ---> BIGQUERY [{table_name}]: {bigquery.check_table(table_id=table_id)} rows")
             os.remove(file_path)
         except BadRequest as exc:
             logging.error(f"\tPSQL ---> BIGQUERY [{table_name}]: {exc.errors}")

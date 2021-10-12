@@ -1,4 +1,4 @@
-# Setup Sentry Logging
+# pylint: disable=import-outside-toplevel
 import logging
 import os
 import sys
@@ -10,8 +10,8 @@ def setup_logging():
 
 
 def _setup_sentry():
-    SENTRY_DSN = os.environ.get("SENTRY_DSN")
-    if SENTRY_DSN:
+    sentry_dsn = os.environ.get("SENTRY_DSN")
+    if sentry_dsn:
         try:
             import sentry_sdk
             from sentry_sdk.integrations.logging import LoggingIntegration
@@ -26,7 +26,10 @@ def _setup_sentry():
             level=logging.INFO,
             event_level=logging.ERROR,
         )
-        sentry_sdk.init(dsn=SENTRY_DSN, integrations=[sentry_logging])
+        sentry_sdk.init(  # pylint: disable=abstract-class-instantiated
+            dsn=sentry_dsn,
+            integrations=[sentry_logging],
+        )
 
 
 def _setup_stout():

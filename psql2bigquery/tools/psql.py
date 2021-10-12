@@ -18,7 +18,7 @@ class PostgreSQLClient:
 
     def __postinit__(self):
         if not self._connection:
-            self._conn = psycopg2.connect(
+            self._connection = psycopg2.connect(
                 host=self.source.hostname,
                 database=self.source.database_name,
                 user=self.source.user,
@@ -30,7 +30,7 @@ class PostgreSQLClient:
     def _execute_query(self, sql: str) -> Iterable:
         cur = self._connection().cursor()
         cur.execute(sql)
-        self._conn.commit()
+        self._connection.commit()
         output = cur.fetchall()
         return output
 
@@ -43,13 +43,13 @@ class PostgreSQLClient:
         delimiter = self.dump_config.delimiter
         quote = self.dump_config.quote
 
-        with file.open("w") as f:
+        with file.open("w") as sql_file:
             sql = (
                 f"COPY (SELECT * FROM {table_name}) TO STDOUT "
                 f"WITH (FORMAT CSV, HEADER TRUE, DELIMITER '{delimiter}', QUOTE '{quote}', FORCE_QUOTE *);"
             )
-            cur.copy_expert(sql=sql, file=f)
-            self._conn.commit()
+            cur.copy_expert(sql=sql, file=sql_file)
+            self._connection.commit()
 
         return file
 
@@ -59,10 +59,7 @@ class PostgreSQLClient:
             return (
                 cleaned_name in self.dump_config.include_tables
                 or cleaned_name not in self.dump_config.skip_tables
-                or any(
-                    cleaned_name.startswith(prefix)
-                    for prefix in self.dump_config.skip_tables_prefix
-                )
+                or any(cleaned_name.startswith(prefix) for prefix in self.dump_config.skip_tables_prefix)
             )
 
         def _fetch_names(query):

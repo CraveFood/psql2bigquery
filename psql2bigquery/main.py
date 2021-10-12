@@ -16,4 +16,3 @@ def cli():
     You can start with:
     psql2bigquery run --help
     """
-
