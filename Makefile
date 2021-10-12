@@ -3,7 +3,7 @@ setup:
 
 dependencies:
 	@make setup
-	@poetry install --no-root
+	@poetry install --no-root --extras sentry
 
 update:
 	@poetry update

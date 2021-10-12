@@ -15,9 +15,11 @@ packages = [
 python = ">=3.8,<3.10"
 click = "*"
 psycopg2-binary = "*"
-sentry-sdk = "*"
+sentry-sdk = {version = "*", optional = true}
 google-cloud-bigquery = { version = ">=2,<3" }
 
+[tool.poetry.extras]
+sentry = ["sentry-sdk"]
 
 [tool.poetry.dev-dependencies]
 pylint = "*"
