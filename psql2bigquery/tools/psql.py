@@ -1,0 +1,84 @@
+from dataclasses import dataclass
+
+import logging
+from pathlib import Path
+from typing import ClassVar, Iterable, Generator
+
+import psycopg2
+
+from psql2bigquery.tools.config import SourceConfig, DumpConfig
+
+
+@dataclass
+class PostgreSQLClient:
+    source: SourceConfig
+    dump_config: DumpConfig
+
+    _connection: ClassVar = None
+
+    def __postinit__(self):
+        if not self._connection:
+            self._conn = psycopg2.connect(
+                host=self.source.hostname,
+                database=self.source.database_name,
+                user=self.source.user,
+                password=self.source.password,
+                port=self.source.port,
+            )
+        return self._connection
+
+    def _execute_query(self, sql: str) -> Iterable:
+        cur = self._connection().cursor()
+        cur.execute(sql)
+        self._conn.commit()
+        output = cur.fetchall()
+        return output
+
+    def dump_table(self, table_name: str) -> Path:
+        cur = self._connection().cursor()
+
+        file = self.dump_config.dump_directory / f"{table_name}.csv"
+        file.parent.mkdir(exist_ok=True, parents=True)
+
+        delimiter = self.dump_config.delimiter
+        quote = self.dump_config.quote
+
+        with file.open("w") as f:
+            sql = (
+                f"COPY (SELECT * FROM {table_name}) TO STDOUT "
+                f"WITH (FORMAT CSV, HEADER TRUE, DELIMITER '{delimiter}', QUOTE '{quote}', FORCE_QUOTE *);"
+            )
+            cur.copy_expert(sql=sql, file=f)
+            self._conn.commit()
+
+        return file
+
+    def list_tables(self) -> Generator[str, None, None]:
+        def _is_accepted(name):
+            cleaned_name = name.lower()
+            return (
+                cleaned_name in self.dump_config.include_tables
+                or cleaned_name not in self.dump_config.skip_tables
+                or any(
+                    cleaned_name.startswith(prefix)
+                    for prefix in self.dump_config.skip_tables_prefix
+                )
+            )
+
+        def _fetch_names(query):
+            for row in self._execute_query(sql=query):
+                name = row[0]
+                if not _is_accepted(name=name):
+                    logging.debug(f"Ignoring: {name}")
+                    continue
+                yield name
+
+        schema = self.source.database_schema
+        sql = f"SELECT tablename FROM pg_tables WHERE schemaname='{schema}'"
+        yield from _fetch_names(query=sql)
+
+        sql = f"select table_name from INFORMATION_SCHEMA.views WHERE table_schema='{schema}'"
+        yield from _fetch_names(query=sql)
+
+    def close(self) -> None:
+        self._connection().close()
