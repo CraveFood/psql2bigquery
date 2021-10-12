@@ -13,6 +13,7 @@ packages = [
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.10"
+click = "*"
 psycopg2-binary = "*"
 sentry-sdk = "*"
 google-cloud-bigquery = { version = ">=2,<3" }
@@ -37,6 +38,9 @@ max-line-length = "120"
 [tool.pylint.basic]
 good-names= "i, j, k, m, n, dt, db, id, pk, tz, qs, ex, _"
 
+
+[tool.poetry.scripts]
+psql2bigquery = 'psql2bigquery.main:cli'
 
 [build-system]
 requires = ["poetry"]
