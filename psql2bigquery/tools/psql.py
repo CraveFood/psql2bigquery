@@ -59,9 +59,8 @@ class PostgreSQLClient:
             if self.dump_config.include_tables:
                 return cleaned_name in self.dump_config.include_tables
 
-            return (
-                cleaned_name not in self.dump_config.skip_tables
-                or any(cleaned_name.startswith(prefix) for prefix in self.dump_config.skip_tables_prefix)
+            return cleaned_name not in self.dump_config.skip_tables or any(
+                cleaned_name.startswith(prefix) for prefix in self.dump_config.skip_tables_prefix
             )
 
         def _fetch_names(query):
