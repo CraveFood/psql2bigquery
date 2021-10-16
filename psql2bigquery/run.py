@@ -21,7 +21,6 @@ def _env(name, fallback=None):
     "--db-host",
     type=str,
     default=_env("DB_HOST"),
-    prompt="Database Hostname",
     show_default=True,
     help="PSQL database hostname",
 )
@@ -29,7 +28,6 @@ def _env(name, fallback=None):
     "--db-port",
     type=int,
     default=_env("DB_PORT", 5432),
-    prompt="Database Port",
     show_default=True,
     help="PSQL database port",
 )
@@ -37,7 +35,6 @@ def _env(name, fallback=None):
     "--db-user",
     type=str,
     default=_env("DB_USER"),
-    prompt="Database Username",
     show_default=True,
     help="PSQL database username",
 )
@@ -45,7 +42,6 @@ def _env(name, fallback=None):
     "--db-password",
     type=str,
     default=_env("DB_PASSWORD"),
-    prompt="Database Password",
     hide_input=True,
     help="PSQL database password",
 )
@@ -53,7 +49,6 @@ def _env(name, fallback=None):
     "--db-schema",
     type=str,
     default=_env("DB_SCHEMA", "public"),
-    prompt="Database Schema",
     show_default=True,
     help="PSQL database schema",
 )
@@ -61,7 +56,6 @@ def _env(name, fallback=None):
     "--db-name",
     type=str,
     default=_env("DB_NAME"),
-    prompt="Database Name",
     show_default=True,
     help="PSQL database name",
 )
@@ -69,7 +63,6 @@ def _env(name, fallback=None):
     "--gcp-project",
     type=str,
     default=_env("GCP_PROJECT"),
-    prompt="GCP Project ID",
     show_default=True,
     help="BigQuery project ID",
 )
@@ -84,7 +77,6 @@ def _env(name, fallback=None):
     "--gcp-credential-path",
     type=str,
     default=_env("GCP_CREDENTIAL_PATH"),
-    prompt="GCP Credentials file location",
     show_default=True,
     help="BigQuery application credentials location",
 )
@@ -140,7 +132,6 @@ def run(
     exclude_prefix: List[str],
 ):
     """Export PostgreSQL tables as BigQuery tables."""
-
     source = SourceConfig(
         hostname=db_host,
         user=db_user,
