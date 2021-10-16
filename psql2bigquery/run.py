@@ -166,8 +166,9 @@ def run(
     for table_name in psql.list_tables():
         logging.info(f"[{table_name}]")
         file_path = psql.dump_table(table_name=table_name)
+        schema = bigquery.build_schema(psql_column_types=psql.get_columns(table_name=table_name))
         try:
-            table_id = bigquery.load_to_bigquery(table_name=table_name, file_path=file_path)
+            table_id = bigquery.load_to_bigquery(table_name=table_name, file_path=file_path, schema=schema)
             logging.info(f"\tPSQL ---> BIGQUERY [{table_name}]: {bigquery.check_table(table_id=table_id)} rows")
             os.remove(file_path)
         except BadRequest as exc:

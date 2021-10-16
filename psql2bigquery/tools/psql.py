@@ -79,5 +79,17 @@ class PostgreSQLClient:
         sql = f"select table_name from INFORMATION_SCHEMA.views WHERE table_schema='{schema}'"
         yield from _fetch_names(query=sql)
 
+    def get_columns(self, table_name):
+        sql = (
+            "SELECT column_name, data_type FROM information_schema.columns "
+            f"WHERE table_name='{table_name}' "
+            "ORDER BY ordinal_position ASC;"
+        )
+
+        columns = {}
+        for row in self._execute_query(sql=sql):
+            columns[row[0]] = row[1]
+        return columns
+
     def close(self) -> None:
         self._connection.close()
