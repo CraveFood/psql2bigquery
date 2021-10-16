@@ -131,7 +131,7 @@ def run(
     db_name: str,
     gcp_project: str,
     gcp_dataset: str,
-    gcp_credentials: str,
+    gcp_credential_path: str,
     dump_dir: str,
     delimiter: str,
     quote: str,
@@ -152,7 +152,7 @@ def run(
     target = TargetConfig(
         project=gcp_project,
         dataset=gcp_dataset or db_name,
-        credential_path=Path(gcp_credentials),
+        credential_path=Path(gcp_credential_path),
     )
     dump_config = DumpConfig(
         dump_directory=Path(dump_dir),

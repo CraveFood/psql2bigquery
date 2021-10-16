@@ -16,7 +16,7 @@ class PostgreSQLClient:
 
     _connection: ClassVar = None
 
-    def __postinit__(self):
+    def __post_init__(self):
         if not self._connection:
             self._connection = psycopg2.connect(
                 host=self.source.hostname,
@@ -28,14 +28,14 @@ class PostgreSQLClient:
         return self._connection
 
     def _execute_query(self, sql: str) -> Iterable:
-        cur = self._connection().cursor()
+        cur = self._connection.cursor()
         cur.execute(sql)
         self._connection.commit()
         output = cur.fetchall()
         return output
 
     def dump_table(self, table_name: str) -> Path:
-        cur = self._connection().cursor()
+        cur = self._connection.cursor()
 
         file = self.dump_config.dump_directory / f"{table_name}.csv"
         file.parent.mkdir(exist_ok=True, parents=True)
@@ -78,4 +78,4 @@ class PostgreSQLClient:
         yield from _fetch_names(query=sql)
 
     def close(self) -> None:
-        self._connection().close()
+        self._connection.close()
