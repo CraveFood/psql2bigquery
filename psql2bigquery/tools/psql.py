@@ -56,9 +56,11 @@ class PostgreSQLClient:
     def list_tables(self) -> Generator[str, None, None]:
         def _is_accepted(name):
             cleaned_name = name.lower()
+            if self.dump_config.include_tables:
+                return cleaned_name in self.dump_config.include_tables
+
             return (
-                cleaned_name in self.dump_config.include_tables
-                or cleaned_name not in self.dump_config.skip_tables
+                cleaned_name not in self.dump_config.skip_tables
                 or any(cleaned_name.startswith(prefix) for prefix in self.dump_config.skip_tables_prefix)
             )
 
