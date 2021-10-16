@@ -38,7 +38,7 @@ class BigQueryClient:
             allow_quoted_newlines=True,
             create_disposition=bigquery.CreateDisposition.CREATE_IF_NEEDED,
             write_disposition=bigquery.WriteDisposition.WRITE_TRUNCATE,
-            max_bad_records=10,
+            max_bad_records=0,
         )
 
         load_job = self._client.load_table_from_file(
