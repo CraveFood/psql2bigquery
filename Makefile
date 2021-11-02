@@ -9,12 +9,7 @@ update:
 	@poetry update
 
 test:
-	@make check
-	@make lint
 	@make unit
-
-check:
-	@poetry check
 
 lint:
 	@echo "Checking code style ..."
