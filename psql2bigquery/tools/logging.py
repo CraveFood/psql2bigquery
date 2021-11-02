@@ -34,3 +34,4 @@ def _setup_sentry():
 
 def _setup_stout():
     logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
+    logging.getLogger().setLevel("INFO")
