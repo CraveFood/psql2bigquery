@@ -4,6 +4,21 @@ Install with: `pip install psql2bigquery`
 
 Get usage instructions with: `psql2bigquery run --help`
 
+## Sample usage
+
+```
+poetry run psql2bigquery run \
+--db-host localhost \
+--db-port 5432 \
+--db-user username \
+--db-password secret-password \
+--db-name my_api \
+--gcp-project my-project \
+--gcp-dataset my_api \
+--include table_name_a \
+--include table_name_b \
+--gcp-credential-path /path/to/credential.json
+```
 
 ## Logging
 
