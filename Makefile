@@ -3,7 +3,7 @@ setup:
 
 dependencies:
 	@make setup
-	@poetry install --no-root
+	@poetry install --no-root --extras sentry
 
 update:
 	@poetry update
@@ -21,12 +21,8 @@ lint:
 	@poetry run pylint psql2bigquery
 	@poetry run black --check .
 
-unit:
-	@echo "Running unit tests ..."
-	@poetry run nosetests
-
 clean:
-	@rm -rf .coverage coverage.xml dist/ build/ *.egg-info/
+	@rm -rf dist/ build/ *.egg-info/
 
 publish:
 	@make clean
