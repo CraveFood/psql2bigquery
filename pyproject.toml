@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "psql2bigquery"
-version = "0.0.2"
+version = "0.0.3"
 description = "Export PostgreSQL databases to Google Cloud Platform BigQuery"
 authors = ["Joao Daher <joao@daher.dev>"]
 repository = "https://github.com/CraveFood/psql2bigquery"

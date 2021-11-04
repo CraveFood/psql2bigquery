@@ -28,6 +28,7 @@ def _setup_sentry():
         )
         sentry_sdk.init(  # pylint: disable=abstract-class-instantiated
             dsn=sentry_dsn,
+            environment=os.environ.get("ENV"),
             integrations=[sentry_logging],
         )
 
