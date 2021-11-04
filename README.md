@@ -26,6 +26,8 @@ There's a possibility to use Sentry.io for error logging.
 
 Just set the environment variable `SENTRY_DSN` and psql2bigquery will automatically configure the logger.
 
+Additionally, the environment variable `ENV` can be used as Sentry environment.
+
 
 ## Contributing
 
