@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "psql2bigquery"
-version = "0.0.3"
+version = "0.0.4"
 description = "Export PostgreSQL databases to Google Cloud Platform BigQuery"
 authors = ["Joao Daher <joao@daher.dev>"]
 repository = "https://github.com/CraveFood/psql2bigquery"
@@ -41,7 +41,7 @@ good-names= "i, j, k, m, n, dt, db, id, pk, tz, qs, ex, _"
 
 
 [tool.poetry.scripts]
-psql2bigquery = 'psql2bigquery.main:cli'
+psql2bigquery = 'psql2bigquery.entrypoint:cli'
 
 [build-system]
 requires = ["poetry"]

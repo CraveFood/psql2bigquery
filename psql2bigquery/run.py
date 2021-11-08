@@ -6,7 +6,7 @@ from typing import List
 import click
 from google.cloud.exceptions import BadRequest
 
-from psql2bigquery.main import cli
+from psql2bigquery.entrypoint import cli
 from psql2bigquery.tools.bigquery import BigQueryClient
 from psql2bigquery.tools.config import SourceConfig, TargetConfig, DumpConfig
 from psql2bigquery.tools.psql import PostgreSQLClient
