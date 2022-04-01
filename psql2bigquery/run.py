@@ -16,6 +16,9 @@ def _env(name, fallback=None):
     return os.environ.get(name, fallback)
 
 
+RETRY_LIMIT = 2
+
+
 @cli.command("run")
 @click.option(
     "--db-host",
@@ -162,9 +165,11 @@ def run(
         target=target,
         dump_config=dump_config,
     )
+    attempt_counter = {table_name: 0 for table_name in psql.list_tables()}
 
-    for table_name in psql.list_tables():
-        logging.info(f"[{table_name}]")
+    def _load_to_bq(table_name):
+        attempt_counter[table_name] += 1
+        logging.info(f"[{table_name}] - attempt {attempt_counter[table_name]}")
         file_path = psql.dump_table(table_name=table_name)
         schema = bigquery.build_schema(psql_column_types=psql.get_columns(table_name=table_name))
         try:
@@ -173,5 +178,10 @@ def run(
             os.remove(file_path)
         except BadRequest as exc:
             logging.error(f"\tPSQL ---> BIGQUERY [{table_name}]: {exc.errors}")
+            if attempt_counter[table_name] < RETRY_LIMIT:
+                _load_to_bq(table_name=table_name)
+
+    for table_name in attempt_counter.keys():
+        _load_to_bq(table_name=table_name)
 
     psql.close()
